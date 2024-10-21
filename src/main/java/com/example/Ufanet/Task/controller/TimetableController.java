@@ -8,14 +8,15 @@ import com.example.Ufanet.Task.model.exception.IncorrectRecordingTime;
 import com.example.Ufanet.Task.model.exception.TimetableNotFound;
 import com.example.Ufanet.Task.service.TimetableService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v0/pool/timetable")
 @AllArgsConstructor
@@ -25,6 +26,7 @@ public class TimetableController {
 
     @GetMapping("/all")
     public ResponseEntity<List<TimetableReservationDTO>> getAll(@RequestParam String date){
+        log.info("Получение информации всей информации о клиентах");
         return new ResponseEntity<>(
                 timetableService.getAll(date + " 00:00")
                 , HttpStatus.OK);
@@ -32,8 +34,8 @@ public class TimetableController {
 
     @GetMapping("/available")
     public ResponseEntity<List<TimetableReservationDTO>> getAvailable (@RequestParam String date){
-        //return new ResponseEntity<>(timetableService.getAll(date), HttpStatus.OK);
-        return new ResponseEntity(
+        log.info("Получение сведений о свободных местах");
+        return new ResponseEntity<>(
                 timetableService.getAvailable(date + " 00:00"),
                 HttpStatus.OK
         );
@@ -41,8 +43,7 @@ public class TimetableController {
 
     @PostMapping("/reserve")
     public ResponseEntity<String> reserve(@RequestBody Map<String, Object> body){
-        System.out.println(body.get("clientId"));
-        System.out.println(body.get("dateTime"));
+        log.info("Бронирование времени");
         try {
             return new ResponseEntity<>(
                     timetableService.reserve(Long.valueOf(body.get("clientId").toString()), (String) body.get("dateTime")),
@@ -58,6 +59,7 @@ public class TimetableController {
 
     @GetMapping("/cancel")
     public ResponseEntity<String> cancel(@RequestBody Map<String, Object> body) {
+        log.info("Отмена записи");
         try {
             timetableService.cancel(Long.valueOf((String) body.get("clientId")), Long.valueOf((String) body.get("orderId")));
             return ResponseEntity.ok().build();
